@@ -199,7 +199,12 @@ def extract_user_short(data):
 
 def extract_broadcast_channel(data):
     """ Extract broadcast channel infos """
-    channels = data["pinned_channels_info"]["pinned_channels_list"]
+    channels_info = data.get("pinned_channels_info")
+
+    if not channels_info:
+        return []
+
+    channels = channels_info["pinned_channels_list"]
     return [Broadcast(**channel) for channel in channels]
 
 
