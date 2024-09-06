@@ -233,6 +233,16 @@ class PublicRequestMixin:
         )
         return response.get("graphql") or response
 
+    def public_v1_request(self, username, data=None, params=None):
+        params = params or {}
+        url = self.PUBLIC_API_URL + f"api/v1/users/web_profile_info/?username={username}"
+        headers = {'x-ig-app-id': '936619743392459'}
+        response = self.public_request(
+            url, data=data, params=params, headers=headers, return_json=True
+        )
+
+        return response.get("data") or response
+        
     def public_graphql_request(
         self,
         variables,
