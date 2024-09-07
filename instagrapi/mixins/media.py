@@ -502,33 +502,25 @@ class MediaMixin:
         amount = int(amount)
         user_id = int(user_id)
         sleep = int(sleep)
-        medias = []
         end_cursor = None
-        variables = {
-            "id": user_id,
-            "first": 24 if not amount or amount > 24 else amount,
-            # These are Instagram restrictions, you can only specify <= 24
-        }
+
         while True:
             self.logger.info(f"user_medias_gql: {amount}, {end_cursor}")
-            if end_cursor:
-                variables["after"] = end_cursor
-
             if not sleep:
                 sleep = random.randint(1, 3)
 
             medias_page, end_cursor = self.user_medias_paginated_gql(
                 user_id, amount, sleep, end_cursor=end_cursor
             )
-            medias.extend(medias_page)
-            if not end_cursor or len(medias_page) == 0:
+            
+            for media in medias_page:
+                yield media      
+
+            if not end_cursor:
                 break
-            if amount and len(medias) >= amount:
-                break
+
             time.sleep(sleep)
-        if amount:
-            medias = medias[:amount]
-        return medias
+
 
     def user_videos_paginated_v1(
         self, user_id: str, amount: int = 24, end_cursor: str = ""
@@ -587,8 +579,8 @@ class MediaMixin:
         """
         amount = int(amount)
         user_id = int(user_id)
-        medias = []
         next_max_id = ""
+        
         while True:
             try:
                 medias_page, next_max_id = self.user_videos_paginated_v1(
@@ -599,14 +591,12 @@ class MediaMixin:
             except Exception as e:
                 self.logger.exception(e)
                 break
-            medias.extend(medias_page)
+
+            for media in medias_page:
+                yield media
+
             if not next_max_id:
                 break
-            if amount and len(medias) >= amount:
-                break
-        if amount:
-            medias = medias[:amount]
-        return medias
 
     def user_medias_paginated_v1(
         self, user_id: str, amount: int = 33, end_cursor: str = ""
@@ -671,7 +661,6 @@ class MediaMixin:
         """
         amount = int(amount)
         user_id = int(user_id)
-        medias = []
         next_max_id = ""
         while True:
             try:
@@ -683,14 +672,12 @@ class MediaMixin:
             except Exception as e:
                 self.logger.exception(e)
                 break
-            medias.extend(medias_page)
+
+            for media in medias_page:
+                yield media
+
             if not next_max_id:
                 break
-            if amount and len(medias) >= amount:
-                break
-        if amount:
-            medias = medias[:amount]
-        return medias
 
     def user_medias_paginated(
         self, user_id: str, amount: int = 0, end_cursor: str = ""
@@ -872,7 +859,6 @@ class MediaMixin:
         """
         amount = int(amount)
         user_id = int(user_id)
-        medias = []
         next_max_id = ""
         while True:
             try:
@@ -884,14 +870,12 @@ class MediaMixin:
             except Exception as e:
                 self.logger.exception(e)
                 break
-            medias.extend(medias_page)
+
+            for media in medias_page:
+                yield media
+
             if not next_max_id:
                 break
-            if amount and len(medias) >= amount:
-                break
-        if amount:
-            medias = medias[:amount]
-        return medias
 
     def user_clips(self, user_id: str, amount: int = 0) -> List[Media]:
         """
@@ -1046,16 +1030,13 @@ class MediaMixin:
                 data, "user", "edge_user_to_photos_of_you", "edges", default=[]
             )
             for edge in edges:
-                medias.append(edge["node"])
+                yield extract_media_gql(edge)
+
             end_cursor = page_info.get("end_cursor")
             if not page_info.get("has_next_page") or not end_cursor or len(edges) == 0:
                 break
-            if amount and len(medias) >= amount:
-                break
+
             time.sleep(sleep)
-        if amount:
-            medias = medias[:amount]
-        return [extract_media_gql(media) for media in medias]
 
     def usertag_medias_v1(self, user_id: str, amount: int = 0) -> List[Media]:
         """
@@ -1074,7 +1055,6 @@ class MediaMixin:
         """
         amount = int(amount)
         user_id = int(user_id)
-        medias = []
         next_max_id = ""
         while True:
             try:
@@ -1086,15 +1066,13 @@ class MediaMixin:
             except Exception as e:
                 self.logger.exception(e)
                 break
+
+            for item in items:
+                yield extract_media_v1(item)
             medias.extend(items)
             if not self.last_json.get("more_available"):
                 break
-            if amount and len(medias) >= amount:
-                break
             next_max_id = self.last_json.get("next_max_id", "")
-        if amount:
-            medias = medias[:amount]
-        return [extract_media_v1(media) for media in medias]
 
     def usertag_medias(self, user_id: str, amount: int = 0) -> List[Media]:
         """
