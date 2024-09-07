@@ -31,7 +31,7 @@ class Resource(TypesBaseModel):
 
 
 class BioLink(TypesBaseModel):
-    link_id: str
+    link_id: Optional[str] = None
     url: str
     lynx_url: Optional[str] = None
     link_type: Optional[str] = None
