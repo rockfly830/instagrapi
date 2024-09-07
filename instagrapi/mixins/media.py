@@ -460,8 +460,8 @@ class MediaMixin:
         medias = []
         variables = {
             "id": user_id,
-            "first": 50 if not amount or amount > 50 else amount,
-            # These are Instagram restrictions, you can only specify <= 50
+            "first": 24 if not amount or amount > 24 else amount,
+            # These are Instagram restrictions, you can only specify <= 24
         }
         variables["after"] = end_cursor
         data = self.public_graphql_request(
@@ -506,8 +506,8 @@ class MediaMixin:
         end_cursor = None
         variables = {
             "id": user_id,
-            "first": 50 if not amount or amount > 50 else amount,
-            # These are Instagram restrictions, you can only specify <= 50
+            "first": 24 if not amount or amount > 24 else amount,
+            # These are Instagram restrictions, you can only specify <= 24
         }
         while True:
             self.logger.info(f"user_medias_gql: {amount}, {end_cursor}")
@@ -531,7 +531,7 @@ class MediaMixin:
         return medias
 
     def user_videos_paginated_v1(
-        self, user_id: str, amount: int = 50, end_cursor: str = ""
+        self, user_id: str, amount: int = 24, end_cursor: str = ""
     ) -> Tuple[List[Media], str]:
         """
         Get a page of user's video by Private Mobile API
@@ -556,7 +556,7 @@ class MediaMixin:
         next_max_id = end_cursor
         try:
             resp = self.private_request(
-                "igtv/channel/", params={"id": f"uservideo_{user_id}", "count": 50}
+                "igtv/channel/", params={"id": f"uservideo_{user_id}", "count": 24}
             )
             items = resp["items"]
         except PrivateError as e:
@@ -789,6 +789,7 @@ class MediaMixin:
         List[Media]
             A list of objects of Media
         """
+
         amount = int(amount)
         user_id = int(user_id)
         sleep = int(sleep)
@@ -811,7 +812,7 @@ class MediaMixin:
         return medias
 
     def user_clips_paginated_v1(
-        self, user_id: str, amount: int = 50, end_cursor: str = ""
+        self, user_id: str, amount: int = 24, end_cursor: str = ""
     ) -> Tuple[List[Media], str]:
         """
         Get a page of user's clip (reels) by Private Mobile API
@@ -1029,8 +1030,8 @@ class MediaMixin:
         end_cursor = None
         variables = {
             "id": user_id,
-            "first": 50 if not amount or amount > 50 else amount,
-            # These are Instagram restrictions, you can only specify <= 50
+            "first": 24 if not amount or amount > 24 else amount,
+            # These are Instagram restrictions, you can only specify <= 24
         }
         while True:
             if end_cursor:
